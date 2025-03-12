@@ -5,13 +5,15 @@ import java.awt.Graphics;
 
 public class Paddle extends Polygon {
 	
-	private static final int MOVE_SPEED = 5;
+	private static final int MOVE_SPEED = 7;
 	private static final int ROTATE_SPEED = 15;
 	private Color fillColor = Color.WHITE;
 	private Color borderColor = Color.BLUE;
 	private double velocityX = 0;
 	private double velocityY = 0;
+	private double scale = 1.0;
 	private boolean isMoving = false;
+	
 	private int gameWidth, gameHeight; 
 
 	public Paddle(Point[] inShape, Point inPosition, double inRotation, int gameWidth, int gameHeight) {
@@ -78,22 +80,52 @@ public class Paddle extends Polygon {
 	public void rotateClockwise() {
 		rotate(ROTATE_SPEED);
 	}
+	
+	public void setFillColor(Color color) {
+	    this.fillColor = color;
+	}
+
+	public void setScale(double scale) {
+	    this.scale = scale;
+	}
 
 	public void draw(Graphics brush) {
-		Point[] points = getPoints();
-		int[] xToColor = new int[points.length];
-		int[] yToColor = new int[points.length];
+	    Point[] points = getPoints();
+	    int[] xToColor = new int[points.length];
+	    int[] yToColor = new int[points.length];
+	    
+	    double centerX = position.getX();
+	    double centerY = position.getY();
+	    
+	    for (int i = 0; i < points.length; i++) {
+	        // Apply scaling here
+	        double dx = (points[i].getX() - centerX) * scale;
+	        double dy = (points[i].getY() - centerY) * scale;
+	        
+	        // Use scaled coordinates
+	        xToColor[i] = (int) (centerX + dx);
+	        yToColor[i] = (int) (centerY + dy);
+	    }
+	    
+	    brush.setColor(fillColor);
+	    brush.fillPolygon(xToColor, yToColor, points.length);
+	    
+	    brush.setColor(borderColor);
+	    brush.drawPolygon(xToColor, yToColor, points.length);
+	}
+	
+	public void updateShape(Point[] newShape) {
+		/*Creates a new Polygon with the new shape 
+		size but preserves position and rotation
+		*/
 		
-		for (int i = 0; i < points.length; i++) {
-			xToColor[i] = (int) points[i].getX();
-			yToColor[i] = (int) points[i].getY();
+		Polygon newPolygon = new Polygon(newShape, this.position.clone(), this.rotation);
+		
+		Point[] points = newPolygon.getPoints();
+		this.shape = new Point[points.length];
+		for(int i = 0; i < points.length; i++) {
+			this.shape[i] = points[i].clone();
 		}
-		
-		brush.setColor(fillColor);
-		brush.fillPolygon(xToColor, yToColor, points.length);
-		
-		brush.setColor(borderColor);
-		brush.drawPolygon(xToColor, yToColor, points.length);
 	}
 
 	// New methods for tracking movement
@@ -117,38 +149,38 @@ public class Paddle extends Polygon {
 		return (int) (getPoints()[2].getY() - getPoints()[0].getY());
 	}
 
-	// Keeps your original PaddleEffect class intact
 	public class PaddleEffect {
-		private int duration;
-		private int currentTime;
-		private boolean on = false;
-		
-		public PaddleEffect(int duration) {
-			this.duration = duration;		
-		}
-		
-		public boolean isOn() {
-			return on;
-		}
-		
-		public void turnOn() {
-			on = true;
-			currentTime = 0;
-			fillColor = Color.YELLOW;
-		}
-		
-		private void turnOff() {
-			on = false;
-			fillColor = Color.WHITE;
-		}
-		
-		public void update() {
-			if (on) {
-				currentTime += 100;
-				if (currentTime >= duration) {
-					turnOff();
-				}
-			}
-		}
+	    private int duration;
+	    private int currentTime;
+	    private boolean on = false;
+	    
+	    public PaddleEffect(int duration) {
+	        this.duration = duration;        
+	    }
+	    
+	    public boolean isOn() {
+	        return on;
+	    }
+	    
+	    public void turnOn() {
+	        on = true;
+	        currentTime = 0;
+	        fillColor = Color.YELLOW;
+	    }
+	    
+	    private void turnOff() {
+	        on = false;
+	        fillColor = Color.WHITE;
+	        scale = 1.0; 
+	    }
+	    
+	    public void update() {
+	        if (on) {
+	            currentTime += 1;
+	            if (currentTime >= duration) {
+	                turnOff();
+	            }
+	        }
+	    }
 	}
 }

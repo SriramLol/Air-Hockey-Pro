@@ -16,7 +16,7 @@ NOTE: You don't need to worry about the "magic math" details.
 */
 
 class Polygon {
-  private Point[] shape;   // An array of points.
+  protected Point[] shape;   // An array of points.
   public Point position;   // The offset mentioned above.
   public double rotation; // Zero degrees is due east.
   

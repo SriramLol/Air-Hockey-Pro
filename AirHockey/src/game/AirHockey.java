@@ -9,6 +9,7 @@ NOTE: This class is the metaphorical "main method" of your program,
 */
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 
 class AirHockey extends Game implements KeyListener {
     static int counter = 0;
@@ -26,29 +27,39 @@ class AirHockey extends Game implements KeyListener {
     private boolean DPressed = false;
     private boolean APressed = false;
     private boolean isInit = false;
+    private PowerUpItem currentPowerUp;
+    private Random random = new Random();
+    private int powerUpTimer = 0;
+    private int powerUpInterval = 300;
 
     public AirHockey() {
         super("Air Hockey", 800, 600);
         this.setFocusable(true);
         this.requestFocus();
         addKeyListener(this);
-    }
+        this.random = new Random();
+      }
 
     private void initialize() {
         if (!isInit) {
             Point[] paddleOneShapeArray = Paddle.createRect(20, 60);
             playerOnePaddle = new Paddle(paddleOneShapeArray, new Point(width - 100, height / 2), 0, width, height);
-            paddleOneEffect = playerOnePaddle.new PaddleEffect(500);
+            paddleOneEffect = playerOnePaddle.new PaddleEffect(300);
 
             Point[] paddleTwoShapeArray = Paddle.createRect(20, 60);
             playerTwoPaddle = new Paddle(paddleTwoShapeArray, new Point(100, height / 2), 0, width, height);
-            paddleTwoEffect = playerTwoPaddle.new PaddleEffect(500);
+            paddleTwoEffect = playerTwoPaddle.new PaddleEffect(300);
 
             ball = new Ball(new Point(width / 2, height / 2), 4, 4);
+            
+            if (random == null) {
+                random = new Random();
+            }
 
             isInit = true;
         }
     }
+    
 
     public void paint(Graphics brush) {
         initialize();
@@ -74,12 +85,22 @@ class AirHockey extends Game implements KeyListener {
         g2d.setColor(Color.RED);
         g2d.drawOval(width / 2 - 50, height / 2 - 50, 100, 100); // Center circle
 
+        //Update power-ups
+        updatePowerUps();
+        
         // Update paddles and ball
         updatePaddles();
         ball.move();
         ball.checkCollision(playerOnePaddle);
         ball.checkCollision(playerTwoPaddle);
         ball.checkWallCollision(width, height);
+        
+        if (currentPowerUp != null) {
+            currentPowerUp.checkCollision(playerOnePaddle, playerTwoPaddle);
+            if (currentPowerUp != null) {
+                currentPowerUp.draw(brush);
+            }
+        }
 
         if (paddleOneEffect != null) {
             paddleOneEffect.update();
@@ -106,6 +127,69 @@ class AirHockey extends Game implements KeyListener {
         brush.drawString("Player One: Use arrow keys to move and period to rotate", 200, 20);
         brush.drawString("Player Two: Use W, A, S, D to move and E to rotate", 200, 35);
     }
+    
+ // Lambda expressions for different power-up effects
+    private PowerUp sizePowerUp = paddle -> {
+   
+        double originalX = paddle.position.getX();
+        double originalY = paddle.position.getY();
+
+        if (paddle == playerOnePaddle) {
+            paddleOneEffect.turnOn();
+        } else {
+            paddleTwoEffect.turnOn();
+        }
+
+        paddle.setFillColor(Color.YELLOW);
+
+        paddle.setScale(1.5);
+    };
+    
+    private void updatePowerUps() {
+    	powerUpTimer++;
+    	
+    	if(powerUpTimer >= powerUpInterval && currentPowerUp == null)
+    	{
+    		int powerX = random.nextInt(width-100) + 50;
+    		int powerY = random.nextInt(height - 100) + 50;
+    		currentPowerUp = new PowerUpItem(new Point(powerX,powerY), sizePowerUp);
+    		powerUpTimer = 0;
+    	}
+    }
+    
+    private class PowerUpItem{
+    	private Point position;
+    	private final int SIZE = 20;
+    	private PowerUp effect;
+    	private Color color = Color.CYAN;
+    	
+    	public PowerUpItem(Point position, PowerUp effect) {
+    		this.position = position;
+    		this.effect = effect;
+    	}
+    	
+    	private void draw(Graphics brush) {
+    		brush.setColor(color);
+    		brush.fillOval((int) position.getX() - SIZE/2,(int) position.getY() - SIZE/2, SIZE, SIZE);
+    		
+    		brush.setColor(Color.BLACK);
+    		brush.drawString("P", (int)position.getX() - 3, (int)position.getY() +5);
+    	}
+    	
+    	public void checkCollision(Paddle one, Paddle two) {
+    		Point checkPoint = new Point(position.getX(), position.getY());
+    		
+    		if(one.contains(checkPoint)) {
+    			effect.applyEffect(one);
+    			currentPowerUp = null;
+    		}else if (two.contains(checkPoint)) {
+    			effect.applyEffect(two);
+    			currentPowerUp = null;
+    		}
+    	}
+    }
+    
+    
 
     public static void main(String[] args) {
         AirHockey a = new AirHockey();
