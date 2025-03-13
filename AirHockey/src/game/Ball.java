@@ -6,6 +6,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 
+
+/**
+* The {@code Ball} class represents the ball in the air hockey game.
+* It extends {@code Polygon} and handles movement and collision detection.
+*/
+
 public class Ball extends Polygon {
     private static final int BALL_SIZE = 20;
     private static final int SPEED = 5;
@@ -13,12 +19,27 @@ public class Ball extends Polygon {
     private double dy;
     private Color ballColor = Color.RED;
 
+    /**
+     * Constructs a {@code Ball} with a given position and velocity.
+     *
+     * @param position the initial position of the ball
+     * @param dx       the initial horizontal velocity
+     * @param dy       the initial vertical velocity
+     */
+    
     public Ball(Point position, double dx, double dy) {
         super(createCircle(BALL_SIZE), position, 0);
         this.dx = dx;
         this.dy = dy;
     }
 
+    /**
+     * Creates a circular shape representation for the ball.
+     *
+     * @param size the diameter of the ball
+     * @return an array of points representing the ball's shape
+     */
+    
     private static Point[] createCircle(int size) {
         return new Point[]{
             new Point(-size / 2, -size / 2),
@@ -28,11 +49,22 @@ public class Ball extends Polygon {
         };
     }
 
+    /**
+     * Moves the ball according to its velocity.
+     */
+    
     public void move() {
         position.setX(position.getX() + dx);
         position.setY(position.getY() + dy);
     }
 
+    /**
+     * Checks for collision with a paddle and adjusts the ball's direction accordingly.
+     *
+     * @param paddle the paddle to check for collision
+     * @return {@code true} if a collision occurred, otherwise {@code false}
+     */
+    
     public boolean checkCollision(Paddle paddle) {
         Point[] ballPoints = getPoints();
         for (Point p : ballPoints) {
@@ -62,6 +94,14 @@ public class Ball extends Polygon {
         return false;
     }
 
+    /**
+     * Checks for collision with the walls and reverses direction if necessary.
+     * Also handles goal area detection and resets ball position if needed.
+     *
+     * @param width  the width of the game area
+     * @param height the height of the game area
+     */
+    
     public void checkWallCollision(int width, int height) {
         
         if (position.getY() <= 0 || position.getY() >= height - BALL_SIZE) {
@@ -96,24 +136,56 @@ public class Ball extends Polygon {
         }
     }
     
+    /**
+     * Checks if the ball has collided with a goal.
+     *
+     * @param goal the goal area to check
+     * @return {@code true} if the ball has entered the goal, otherwise {@code false}
+     */
+    
     public boolean checkGoalCollision(Rectangle goal) {
         Rectangle ballRect = new Rectangle((int)position.getX(), (int)position.getY(), BALL_SIZE, BALL_SIZE);
         return ballRect.intersects(goal);
     }
     
 
+    /**
+     * Gets the current horizontal velocity of the ball.
+     *
+     * @return the horizontal velocity
+     */
+    
     public double getDx() {
         return dx;
     }
+    
+    /**
+     * Gets the current vertical velocity of the ball.
+     *
+     * @return the vertical velocity
+     */
     
     public double getDy() {
         return dy;
     }
     
+    /**
+     * Sets the velocity of the ball.
+     *
+     * @param dx the new horizontal velocity
+     * @param dy the new vertical velocity
+     */
+    
     public void setVelocity(double dx, double dy) {
         this.dx = dx;
         this.dy = dy;
     }
+    
+    /**
+     * Draws the ball on the screen.
+     *
+     * @param brush the {@code Graphics} object used for rendering
+     */
     
     public void draw(Graphics brush) {
         brush.setColor(ballColor);
