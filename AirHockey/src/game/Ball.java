@@ -2,6 +2,9 @@ package game;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
 
 public class Ball extends Polygon {
     private static final int BALL_SIZE = 20;
@@ -30,7 +33,7 @@ public class Ball extends Polygon {
         position.setY(position.getY() + dy);
     }
 
-    public void checkCollision(Paddle paddle) {
+    public boolean checkCollision(Paddle paddle) {
         Point[] ballPoints = getPoints();
         for (Point p : ballPoints) {
             if (paddle.contains(p)) {
@@ -52,20 +55,66 @@ public class Ball extends Polygon {
                     dy += paddle.getVelocityY() * 0.3;
                 }
 
-                break;
+                return true;
             }
         }
+        
+        return false;
     }
 
     public void checkWallCollision(int width, int height) {
-        if (position.getX() <= 0 || position.getX() >= width - BALL_SIZE) {
-            dx = -dx; 
-        }
+        
         if (position.getY() <= 0 || position.getY() >= height - BALL_SIZE) {
             dy = -dy; 
         }
+        
+        if (position.getX() <= 0) {
+            int GOAL_HEIGHT = 120;
+            int goalY = height/2 - GOAL_HEIGHT/2;
+            
+            if (position.getY() < goalY || position.getY() > goalY + GOAL_HEIGHT) {
+                dx = -dx;
+                position.setX(1);
+            }
+        }
+        
+        if (position.getX() >= width - BALL_SIZE) {
+            int GOAL_HEIGHT = 120;
+            int GOAL_WIDTH = 20;
+            int goalY = height/2 - GOAL_HEIGHT/2;
+            
+            if (position.getY() < goalY || position.getY() > goalY + GOAL_HEIGHT) {
+                dx = -dx;
+                position.setX(width - BALL_SIZE - 1);
+            }
+        }
+        
+        if (position.getX() < -BALL_SIZE || position.getX() > width + BALL_SIZE) {
+            position.setX(width / 2);
+            position.setY(height / 2);
+            dx = -dx / 2; 
+        }
     }
+    
+    public boolean checkGoalCollision(Rectangle goal) {
+        Rectangle ballRect = new Rectangle((int)position.getX(), (int)position.getY(), BALL_SIZE, BALL_SIZE);
+        return ballRect.intersects(goal);
+    }
+    
 
+    public double getDx() {
+        return dx;
+    }
+    
+    public double getDy() {
+        return dy;
+    }
+    
+    public void setVelocity(double dx, double dy) {
+        this.dx = dx;
+        this.dy = dy;
+    }
+    
     public void draw(Graphics brush) {
         brush.setColor(ballColor);
         brush.fillOval((int) position.getX(), (int) position.getY(), BALL_SIZE, BALL_SIZE);

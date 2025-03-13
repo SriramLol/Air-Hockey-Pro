@@ -8,7 +8,7 @@ public class Paddle extends Polygon {
 	private static final int MOVE_SPEED = 7;
 	private static final int ROTATE_SPEED = 15;
 	private Color fillColor = Color.WHITE;
-	private Color borderColor = Color.BLUE;
+	private Color borderColor;
 	private double velocityX = 0;
 	private double velocityY = 0;
 	private double scale = 1.0;
@@ -16,10 +16,11 @@ public class Paddle extends Polygon {
 	
 	private int gameWidth, gameHeight; 
 
-	public Paddle(Point[] inShape, Point inPosition, double inRotation, int gameWidth, int gameHeight) {
+	public Paddle(Point[] inShape, Point inPosition, double inRotation, int gameWidth, int gameHeight, Color borderColor) {
 		super(inShape, inPosition, inRotation);
 		this.gameWidth = gameWidth;
 		this.gameHeight = gameHeight;
+		this.borderColor = borderColor;
 	}
 	
 	public static Point[] createRect(int width, int height) {
