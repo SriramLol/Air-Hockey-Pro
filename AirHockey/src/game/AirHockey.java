@@ -11,6 +11,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 
+/**
+ * The {@code AirHockey} class represents an air hockey game.
+ * It extends {@code Game} and implements {@code KeyListener} to handle user input.
+ * The game includes player paddles, a ball, goals, and power-ups.
+ */
+
 class AirHockey extends Game implements KeyListener {
 	static int counter = 0;
 	private Paddle playerOnePaddle;
@@ -40,10 +46,19 @@ class AirHockey extends Game implements KeyListener {
 	private int paddleOneFlashTimer = 0;
 	private int paddleTwoFlashTimer = 0;
 	private final int FLASH_DURATION = 15;
+
+
+	/**
+     * Interface for handling ball and paddle collision events.
+     */
 	
 	private interface CollisionListener{
 		void onCollision(Ball ball, Paddle paddle);
 	}
+	
+	/**
+     * Handles ball collision events, modifying ball speed and paddle effects.
+     */
 	
 	private CollisionListener collisionListener = new CollisionListener() {
 		@Override
@@ -67,6 +82,11 @@ class AirHockey extends Game implements KeyListener {
 		}
 	};
 
+	/**
+     * Constructs an {@code AirHockey} game with a predefined title and dimensions.
+     * It initializes the game window and sets up key listening.
+     */
+	
 	public AirHockey() {
 		super("Air Hockey", 800, 600);
 		this.setFocusable(true);
@@ -75,6 +95,10 @@ class AirHockey extends Game implements KeyListener {
 		this.random = new Random();
 	}
 
+	/**
+     * Initializes the game objects such as paddles, ball, and goals if they are not already initialized.
+     */
+	
 	private void initialize() {
 		if (!isInit) {
 			Point[] paddleOneShapeArray = Paddle.createRect(20, 60);
@@ -97,6 +121,12 @@ class AirHockey extends Game implements KeyListener {
 		}
 	}
 
+	/**
+     * Paints the game elements onto the screen.
+     *
+     * @param brush the {@code Graphics} object used to render elements.
+     */
+	
 	public void paint(Graphics brush) {
 		initialize();
 
@@ -291,6 +321,13 @@ class AirHockey extends Game implements KeyListener {
 		}
 	}
 
+	
+	/**
+     * Main method to start the game.
+     *
+     * @param args command-line arguments (not used).
+     */
+	
 	public static void main(String[] args) {
 		AirHockey a = new AirHockey();
 		a.repaint();
